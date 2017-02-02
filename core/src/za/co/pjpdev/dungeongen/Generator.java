@@ -27,11 +27,11 @@ public class Generator {
     /* Generator Variables */
     private int numRoomTries;
     private int extraConnectorSize = 20;
-    private int roomExtraSize = 0;
+    private int roomExtraSize = 5;
     private int windingPercent = 0;
 
     private int minRoomSize = 3;
-    private int maxRoomSize = 15;
+    private int maxRoomSize = 30;
 
     private int[][] tileMap;
     private int mapWidth;
@@ -42,6 +42,10 @@ public class Generator {
 
     private ArrayList<Room> rooms;
     //private ArrayList<Rectangle> rooms;
+
+    private int tileSize = 10;
+    private float mapX = 5;
+    private float mapY = 5;
 
     private Random rng;
 
@@ -74,12 +78,8 @@ public class Generator {
                     renderer.setColor(Color.GREEN);
                 }
 
-                int tileSize = 2;
-                int mapX = 5;
-                int mapY = 5;
-
-                int drawX = mapX + (tileSize * x);
-                int drawY = mapY + (tileSize * y);
+                float drawX = mapX + (tileSize * x);
+                float drawY = mapY + (tileSize * y);
 
                 //if ((drawX >= -15) && (drawX <= container.getScreenHeight()+15) && (drawY >= -15) && (drawY <= container.getScreenHeight()+15)) {
                 renderer.rect(drawX, drawY, tileSize, tileSize);
@@ -112,6 +112,11 @@ public class Generator {
         }
 
         //connectRegions();
+    }
+
+    public void move(float x, float y, float delta) {
+        mapX += x * delta;
+        mapY += y * delta;
     }
 
     private void addRooms() {
