@@ -33,7 +33,7 @@ public class RoomGenerator {
         this.width = width;
         this.height = height;
 
-        mapGrid = new int[width][height];
+        mapGrid = new Tiles[width][height];
         rooms = new ArrayList<Room>();
     }
 
