@@ -1,4 +1,4 @@
-package za.co.pjpdev.dungeongen;
+package za.co.pjpdev.dungeongen.mazedungeon;
 
 /**
  * Created by PJ.Pretorius on 27/01/2017.

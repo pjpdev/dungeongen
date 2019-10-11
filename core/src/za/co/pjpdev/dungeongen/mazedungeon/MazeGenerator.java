@@ -1,18 +1,15 @@
-package za.co.pjpdev.dungeongen;
+package za.co.pjpdev.dungeongen.mazedungeon;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Vector;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by PJ.Pretorius on 27/01/2017.
  */
-public class Generator {
+public class MazeGenerator {
 
     /* Tile Types */
     public static final int TILE_WALL = 0;
@@ -24,7 +21,7 @@ public class Generator {
     public static final VecPoint DIR_SOUTH = new VecPoint(0, 1);
     public static final VecPoint DIR_EAST = new VecPoint(1, 0);
 
-    /* Generator Variables */
+    /* MazeGenerator Variables */
     private int numRoomTries;
     private int extraConnectorSize = 20;
     private int roomExtraSize = 5;
@@ -43,13 +40,13 @@ public class Generator {
     private ArrayList<Room> rooms;
     //private ArrayList<Rectangle> rooms;
 
-    private int tileSize = 10;
-    private float mapX = 5;
-    private float mapY = 5;
+    private int tileSize = 5;
+    private float mapX = 0;
+    private float mapY = 0;
 
     private Random rng;
 
-    public Generator(int mapWidth, int mapHeight, int numRooms) {
+    public MazeGenerator(int mapWidth, int mapHeight, int numRooms) {
 		/* CREATE GENERATOR */
 
         this.mapWidth = mapWidth;
@@ -105,13 +102,13 @@ public class Generator {
         // Generate Maze
         for (int x = 1; x < mapWidth; x += 2) {
             for (int y = 1; y < mapHeight; y += 2) {
-                if (tileMap[x][y] == TILE_WALL) {
-                    growMaze(new VecPoint(x, y));
-                }
+                if (tileMap[x][y] != TILE_WALL) continue;
+                growMaze(new VecPoint(x, y));
             }
         }
 
-        //connectRegions();
+        connectRegions();
+        removeDeadEnds();
     }
 
     public void move(float x, float y, float delta) {
@@ -130,11 +127,11 @@ public class Generator {
             int rectangularity = rng.nextInt(1 + size / 2) * 2;
             int width = size;
             int height = size;
-			/*if (rng.nextInt(2) == 1) {
+			if (rng.nextInt(2) == 1) {
 				width += rectangularity;
 			} else {
 				height += rectangularity;
-			}*/
+			}
 
             int x = rng.nextInt((mapWidth - width - 1) / 2) * 2 + 1;
             int y = rng.nextInt((mapHeight - height - 1) / 2) * 2 + 1;
@@ -152,14 +149,13 @@ public class Generator {
                 }
             }
 
-            if (!overlaps) {
-                rooms.add(room);
+            if (overlaps) continue;
+            rooms.add(room);
 
-                startRegion();
-                for (int xx = 0; xx < room.getWidth(); xx++) {
-                    for (int yy = 0; yy < room.getWidth(); yy++) {
-                        carve(xx + x, yy + y);
-                    }
+            startRegion();
+            for (int xx = 0; xx < room.getWidth(); xx++) {
+                for (int yy = 0; yy < room.getHeight(); yy++) {
+                    carve(xx + x, yy + y);
                 }
             }
         }
@@ -171,7 +167,7 @@ public class Generator {
         VecPoint lastDir = new VecPoint(0, 0);
 
         startRegion();
-        carve(start.x, start.y);
+        carve(start);
 
         cells.add(start);
         while (!cells.isEmpty()) {
@@ -214,30 +210,33 @@ public class Generator {
 
     private void connectRegions() {
 		/* CONNECT THE REGIONS */
-        HashMap<VecPoint, HashSet<Integer>> connectorRegions = new HashMap<VecPoint, HashSet<Integer>>();
-        for (int x = 0; x < mapWidth; x++) {
-            for (int y = 0; y < mapHeight; y++) {
+        HashMap<VecPoint, ArrayList<Integer>> connectorRegions = new HashMap<VecPoint, ArrayList<Integer>>();
+
+        for (int x = 1; x < mapWidth-1; x++) {
+            for (int y = 1; y < mapHeight-1; y++) {
                 if (tileMap[x][y] != TILE_WALL) continue;
 
-                HashSet<Integer> newRegions = new HashSet<Integer>();
+                ArrayList<Integer> newRegions = new ArrayList<Integer>();
 
                 VecPoint pos = new VecPoint(x, y);
 
+                int region = 0;
+
                 VecPoint north = pos.add(DIR_NORTH);
-                int region1 = regions[north.x][north.y];
-                if (region1 != 0) newRegions.add(region1);
+                region = regions[north.x][north.y];
+                if (region != 0) newRegions.add(region);
 
                 VecPoint west = pos.add(DIR_WEST);
-                int region2 = regions[west.x][west.y];
-                if (region2 != 0) newRegions.add(region2);
+                region = regions[west.x][west.y];
+                if (region != 0) newRegions.add(region);
 
                 VecPoint south = pos.add(DIR_SOUTH);
-                int region3 = regions[south.x][south.y];
-                if (region3 != 0) newRegions.add(region3);
+                region = regions[south.x][south.y];
+                if (region != 0) newRegions.add(region);
 
                 VecPoint east = pos.add(DIR_EAST);
-                int region4 = regions[east.x][east.y];
-                if (region4 != 0) newRegions.add(region4);
+                region = regions[east.x][east.y];
+                if (region != 0) newRegions.add(region);
 
                 if (newRegions.size() < 2) continue;
 
@@ -245,7 +244,40 @@ public class Generator {
             }
         }
 
-        //VecPoint[] connectors = connectorRegions.keySet().toArray(VecPoint);
+        //VecPoint connectors[] = connectorRegions.keySet().toArray(new VecPoint[0]);
+        ArrayList<VecPoint> connectors = (ArrayList<VecPoint>) connectorRegions.keySet().stream().collect(Collectors.toList());
+
+        // Keep track of which regions have been merged.
+        ArrayList<Integer> merged = new ArrayList<Integer>();
+        ArrayList<Integer> openRegions = new ArrayList<Integer>();
+        for (int i = 0; i <= currentRegion; i++) {
+            merged.add(i);
+            openRegions.add(i);
+        }
+
+        while (openRegions.size() > 1) {
+            VecPoint connector = connectors.get(rng.nextInt(connectors.size()));
+
+            // Carve connection
+            addJunction(connector);
+
+            // Merge connected regions
+            ArrayList<Integer> regions = (ArrayList<Integer>) connectorRegions.get(connector).stream().map(region -> merged.get(region)).collect(Collectors.toList());
+            int dest = regions.get(0);
+            ArrayList<Integer> sources = (ArrayList<Integer>) regions.stream().skip(1).collect(Collectors.toList());
+
+            for (int i = 0; i <= currentRegion; i++) {
+                if (sources.contains(merged.get(i))) {
+                    merged.set(i, dest);
+                }
+            }
+
+            openRegions.removeAll(sources);
+
+
+            // Remove connectors
+            // Fuckit
+        }
     }
 
     private void startRegion() {
@@ -281,6 +313,44 @@ public class Generator {
 
     private void fill(int x, int y) {
         tileMap[x][y] = TILE_WALL;
+    }
+
+    private void addJunction(VecPoint pos) {
+        carve(pos);
+    }
+
+    private void removeDeadEnds() {
+        boolean done = false;
+
+        while (!done) {
+            done = true;
+
+            for (int x = 1; x < mapWidth-1; x++) {
+                for (int y = 1; y < mapHeight-1; y++) {
+                    if (tileMap[x][y] == TILE_WALL) continue;
+
+                    int exits = 0;
+                    VecPoint pos = new VecPoint(x, y);
+
+                    VecPoint north = pos.add(DIR_NORTH);
+                    if (tileMap[north.x][north.y] != TILE_WALL) exits++;
+
+                    VecPoint east = pos.add(DIR_EAST);
+                    if (tileMap[east.x][east.y] != TILE_WALL) exits++;
+
+                    VecPoint south = pos.add(DIR_SOUTH);
+                    if (tileMap[south.x][south.y] != TILE_WALL) exits++;
+
+                    VecPoint west = pos.add(DIR_WEST);
+                    if (tileMap[west.x][west.y] != TILE_WALL) exits++;
+
+                    if (exits != 1) continue;
+
+                    done = false;
+                    tileMap[x][y] = TILE_WALL;
+                }
+            }
+        }
     }
 
 }
