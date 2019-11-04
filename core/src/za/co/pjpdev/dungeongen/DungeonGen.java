@@ -2,6 +2,7 @@ package za.co.pjpdev.dungeongen;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import za.co.pjpdev.dungeongen.civgen.CivGenerator;
 import za.co.pjpdev.dungeongen.mazedungeon.MazeGenerator;
@@ -19,7 +20,7 @@ public class DungeonGen extends ApplicationAdapter {
 		shapeRenderer = new ShapeRenderer();
 
 		//gen = new MazeGenerator(96, 72, 20);
-        gen = new CivGenerator(96, 72, 4);
+        gen = new CivGenerator(128, 72, 10);
 		gen.generate();
 	}
 
@@ -34,6 +35,8 @@ public class DungeonGen extends ApplicationAdapter {
 	}
 
 	public void update (float delta) {
-		//--
+		if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+			gen.generate();
+		}
 	}
 }

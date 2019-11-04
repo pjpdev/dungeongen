@@ -45,9 +45,13 @@ public class CivGenerator {
         for (int x = 0; x < mapWidth; x++) {
             for (int y = 0; y < mapHeight; y++) {
                 if (mapData[x][y] == 0) {
-                    renderer.setColor(Color.BLUE);
-                } else if (mapData[x][y] > 0) {
+                    renderer.setColor(Color.NAVY);
+                } else if (mapData[x][y] == 1) {
                     renderer.setColor(Color.GREEN);
+                } else if (mapData[x][y] == 2) {
+                    renderer.setColor(Color.OLIVE);
+                } else if (mapData[x][y] >= 3) {
+                    renderer.setColor(Color.GRAY);
                 }
 
                 float drawX = mapX + (tileSize * x);
@@ -75,7 +79,7 @@ public class CivGenerator {
 
         // Set basic tile accounting parameters
         tilesUsed = 0;
-        int maxTiles = (landmassModifier + 2) * 320;
+        int maxTiles = (landmassModifier + 2) * 480;
 
         // Start generating chunks.
         while (tilesUsed < maxTiles) {
@@ -108,9 +112,9 @@ public class CivGenerator {
         // Start generating chunk
         while (length > 0) {
             // Fill tiles with land
-            chunkData[posX][posY] = 15;
-            chunkData[posX+1][posY] = 15;
-            chunkData[posX][posY+1] = 15;
+            chunkData[posX][posY] = 1;
+            chunkData[posX+1][posY] = 1;
+            chunkData[posX][posY+1] = 1;
 
             // Select next direction
             int dir = rnd.nextInt(4); // 0 = N, 1 = E, 2 = S, 3 = W
