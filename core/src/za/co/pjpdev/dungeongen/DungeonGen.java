@@ -3,20 +3,23 @@ package za.co.pjpdev.dungeongen;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import za.co.pjpdev.dungeongen.civgen.CivGenerator;
 import za.co.pjpdev.dungeongen.mazedungeon.MazeGenerator;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import za.co.pjpdev.dungeongen.mazedungeon.RoomGenerator;
 
 
 public class DungeonGen extends ApplicationAdapter {
 	ShapeRenderer shapeRenderer;
-	MazeGenerator gen;
+	CivGenerator gen;
 	
 	@Override
 	public void create () {
 		shapeRenderer = new ShapeRenderer();
 
-		gen = new MazeGenerator(96, 72, 20);
+		//gen = new MazeGenerator(96, 72, 20);
+        gen = new CivGenerator(96, 72, 1);
 		gen.generate();
 	}
 

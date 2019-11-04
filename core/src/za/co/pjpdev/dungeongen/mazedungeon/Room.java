@@ -1,5 +1,10 @@
 package za.co.pjpdev.dungeongen.mazedungeon;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+
+import java.util.ArrayList;
+
 /**
  * Created by PJ.Pretorius on 27/01/2017.
  */
@@ -8,6 +13,8 @@ public class Room {
     private int x1, x2;
     private int y1, y2;
     private int w, h;
+
+    public ArrayList<VecPoint> doors;
 
     public Room(int x, int y, int w, int h) {
 		/* CREATE ROOM */
@@ -20,6 +27,8 @@ public class Room {
 
         this.h = h;
         this.w = w;
+
+        doors = new ArrayList<VecPoint>();
     }
 
     public boolean overlaps(Room room) {
@@ -40,5 +49,17 @@ public class Room {
 
     public int getHeight() {
         return h;
+    }
+
+    public void render(ShapeRenderer renderer) {
+        // Render room
+        for (int x = 0; x < w; x++) {
+            for (int y = 0; y < h; y++) {
+                renderer.setColor(Color.BLUE);
+                int drawX = (x1 * 5) + (x * 5);
+                int drawY = (y1 * 5) + (y * 5);
+                renderer.rect(drawX, drawY, 5, 5);
+            }
+        }
     }
 }
