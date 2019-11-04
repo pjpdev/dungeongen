@@ -75,7 +75,7 @@ public class CivGenerator {
 
         // Set basic tile accounting parameters
         tilesUsed = 0;
-        int maxTiles = (landmassModifier + 2) + 320;
+        int maxTiles = (landmassModifier + 2) * 320;
 
         // Start generating chunks.
         while (tilesUsed < maxTiles) {
@@ -98,8 +98,11 @@ public class CivGenerator {
         }
 
         // Set basic parameters
-        int posX = 5 + rnd.nextInt(mapWidth - 5);
-        int posY = 5 + rnd.nextInt(mapHeight - 5);
+        int min = 5;
+        int maxX = mapWidth - 5;
+        int maxY = mapHeight - 5;
+        int posX = rnd.nextInt((maxX - min)+1) + min;
+        int posY = rnd.nextInt((maxY - min) + 1) + min;
         int length = rnd.nextInt(64) + 1;
 
         // Start generating chunk
@@ -131,7 +134,7 @@ public class CivGenerator {
 
             // Check bounds.
             if ((posX < 5) || (posX > mapWidth-5) || (posY < 5) || (posY > mapHeight-5)) {
-                length = 0;
+                length = -1;
             } else {
                 length -= 1;
             }
@@ -164,6 +167,7 @@ public class CivGenerator {
             }
         }
 
+        System.out.println(tempCount);
         return tempCount;
     }
 }

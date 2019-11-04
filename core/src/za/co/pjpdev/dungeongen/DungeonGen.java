@@ -19,7 +19,7 @@ public class DungeonGen extends ApplicationAdapter {
 		shapeRenderer = new ShapeRenderer();
 
 		//gen = new MazeGenerator(96, 72, 20);
-        gen = new CivGenerator(96, 72, 1);
+        gen = new CivGenerator(96, 72, 4);
 		gen.generate();
 	}
 

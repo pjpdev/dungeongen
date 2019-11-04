@@ -7,8 +7,8 @@ import za.co.pjpdev.dungeongen.DungeonGen;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.width = 480;
-		config.height = 360;
+		config.width = 1280;
+		config.height = 720;
 		config.fullscreen = false;
 		config.resizable = false;
 		new LwjglApplication(new DungeonGen(), config);
